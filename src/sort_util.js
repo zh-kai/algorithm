@@ -16,6 +16,59 @@ function bubble_sort(nums) {
 }
 
 /**
+ * 选择排序
+ * 时间复杂度：O(N^2)
+ * @param {*} nums
+ */
+function select_sort(nums) {
+  const ret = nums.slice(0);
+
+  for (let i = 0, len = ret.length; i < len - 1; i++) {
+    let minIndex = i;
+    // 寻找最小值
+    for (let j = i + 1; j < len; j++) {
+      if (ret[minIndex] > ret[j]) {
+        minIndex = j;
+      }
+    }
+
+    // 将最小值交换至前方
+    if (minIndex !== i) {
+      [ret[minIndex], ret[i]] = [ret[i], ret[minIndex]];
+    }
+  }
+
+  return ret;
+}
+
+/**
+ * 插入排序
+ * 时间复杂度：O(n^2)
+ * @param {*} nums
+ */
+function insertion_sort(nums) {
+  let ret = nums.slice(0);
+
+  for (let i = 1, len = ret.length; i < len; i++) {
+    // 已排序个数
+    let j = i - 1;
+    let curr = ret[i];
+    // 寻找位置
+    while (j >= 0) {
+      if (ret[j] > curr) {
+        ret[j + 1] = ret[j];
+        j--;
+      } else {
+        break;
+      }
+    }
+    ret[j + 1] = curr;
+  }
+
+  return ret;
+}
+
+/**
  * 快速排序
  * 时间复杂度：O(N*logN)
  * @param {*} nums
@@ -51,33 +104,6 @@ function quick_sort(nums) {
     [curr],
     quick_sort(ret.slice(i + 1, end))
   );
-}
-
-/**
- * 插入排序
- * 时间复杂度：O(n^2)
- * @param {*} nums
- */
-function insertion_sort(nums) {
-  let ret = nums.slice(0);
-
-  for (let i = 1, len = ret.length; i < len; i++) {
-    // 已排序个数
-    let j = i - 1;
-    let curr = ret[i];
-    // 寻找位置
-    while (j >= 0) {
-      if (ret[j] > curr) {
-        ret[j + 1] = ret[j];
-        j--;
-      } else {
-        break;
-      }
-    }
-    ret[j + 1] = curr;
-  }
-
-  return ret;
 }
 
 /**
@@ -121,9 +147,82 @@ function merge_sort(nums) {
   }
 }
 
+/**
+ * 基数排序
+ *
+ * @param {*} nums
+ */
+function base_sort(nums) {
+  let max = Math.max(...nums);
+  let digit = 1;
+  let ret = nums.slice(0);
+
+  while (true) {
+    if (Math.floor(max / Math.pow(10, digit))) {
+      digit++;
+    } else {
+      break;
+    }
+  }
+
+  let bucketList = [];
+
+  for (let i = 1; i <= digit; i++) {
+    let base = Math.pow(10, i);
+    // 初始化所有的桶
+    bucketList = init_buckets();
+
+    distribute(base, ret, bucketList);
+
+    ret = collect(bucketList);
+  }
+
+  /**
+   * 清空桶内元素
+   * @param {*} buckets
+   */
+  function init_buckets() {
+    const buckets = [];
+    for (let i = 0; i < 10; i++) {
+      let bucket = new Array();
+      buckets.push(bucket);
+    }
+    return buckets;
+  }
+
+  /**
+   * 向桶内分发元素
+   * @param {*} base
+   * @param {*} datas
+   * @param {*} buckets
+   */
+  function distribute(base, datas, buckets) {
+    for (let j = 0, len = datas.length; j < len; j++) {
+      let index = Math.floor((datas[j] % base) / (base / 10));
+      buckets[index].push(datas[j]);
+    }
+  }
+
+  /**
+   * 收集桶内元素
+   * @param {*} buckets
+   */
+  function collect(buckets) {
+    let datas = [];
+    buckets.map((item) => {
+      datas = datas.concat(item);
+    });
+    return datas;
+  }
+
+  return ret;
+}
+
 module.exports = {
   bubble: bubble_sort,
   quick: quick_sort,
   insertion: insertion_sort,
   merge: merge_sort,
+  select: select_sort,
+  base: base_sort,
 };
